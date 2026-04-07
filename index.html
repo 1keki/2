@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>єДокументи</title>
+  <meta name="theme-color" content="#1A8C5B" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="єДок" />
+  <link rel="manifest" href="/1/manifest.json" />
+  <link rel="apple-touch-icon" href="/1/icons/icon-192.png" />
+
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+    :root {
+      --green: #1A8C5B;
+      --green2: #25C281;
+      --bg: #eef2ee;
+      --text: #1a1a1a;
+      --muted: #6b7280;
+      --nav-bg: #1a1a1a;
+      --radius: 20px;
+    }
+
+    body {
+      font-family: -apple-system, 'SF Pro Display', 'Segoe UI', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100dvh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* HEADER */
+    .header {
+      padding: calc(env(safe-area-inset-top, 0px) + 14px) 20px 14px;
+      background: white;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid rgba(0,0,0,0.06);
+      position: sticky; top: 0; z-index: 50;
+    }
+    .header-left { display: flex; align-items: center; gap: 10px; }
+    .header-flag {
+      width: 36px; height: 36px; border-radius: 10px;
+      background: linear-gradient(180deg, #005BBB 50%, #FFD500 50%);
+      flex-shrink: 0;
+    }
+    .header-title { font-size: 19px; font-weight: 700; letter-spacing: -0.3px; }
+    .header-sub { font-size: 12px; color: var(--muted); margin-top: 1px; }
+    .header-avatar {
+      width: 36px; height: 36px; border-radius: 50%;
+      background: linear-gradient(135deg, var(--green), var(--green2));
+      display: flex; align-items: center; justify-content: center;
+      color: white; font-weight: 700; font-size: 14px; flex-shrink: 0;
+    }
+
+    /* SCROLL */
+    .scroll-area {
+      flex: 1; overflow-y: auto;
+      padding: 20px 16px calc(env(safe-area-inset-bottom, 0px) + 90px);
+    }
+
+    .section-label {
+      font-size: 12px; font-weight: 700; color: var(--muted);
+      letter-spacing: 0.6px; text-transform: uppercase;
+      margin-bottom: 14px; margin-left: 4px;
+    }
+
+    /* CARD */
+    .doc-card {
+      background: white;
+      border-radius: var(--radius);
+      margin-bottom: 16px;
+      overflow: hidden;
+      box-shadow: 0 2px 14px rgba(0,0,0,0.08);
+      cursor: pointer;
+      transition: transform 0.15s;
+    }
+    .doc-card:active { transform: scale(0.983); }
+
+    .doc-header {
+      padding: 14px 16px 8px;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .doc-type { font-size: 13px; font-weight: 700; color: var(--green); }
+    .doc-arrow {
+      font-size: 18px; color: #9ca3af;
+      transition: transform 0.3s;
+    }
+    .doc-card.open .doc-arrow { transform: rotate(180deg); }
+
+    .doc-body {
+      padding: 0 16px 16px;
+      display: flex; gap: 14px; align-items: flex-start;
+    }
+    .doc-photo {
+      width: 82px; height: 104px; border-radius: 10px;
+      background: #f3f4f6;
+      flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 38px; overflow: hidden;
+    }
+    .doc-photo img { width: 100%; height: 100%; object-fit: cover; }
+    .doc-info { flex: 1; padding-top: 2px; }
+    .doc-name {
+      font-size: 18px; font-weight: 800;
+      line-height: 1.25; margin-bottom: 10px;
+      letter-spacing: -0.3px;
+    }
+    .doc-field { margin-bottom: 7px; }
+    .doc-field-label { font-size: 11px; color: var(--muted); font-weight: 500; margin-bottom: 1px; }
+    .doc-field-value { font-size: 14px; font-weight: 600; }
+
+    /* TICKER */
+    .ticker {
+      background: linear-gradient(90deg, var(--green) 0%, var(--green2) 100%);
+      padding: 7px 0; overflow: hidden;
+    }
+    .ticker-inner {
+      display: inline-block; white-space: nowrap;
+      font-size: 12px; font-weight: 500; color: white;
+      animation: scroll 20s linear infinite;
+    }
+    @keyframes scroll {
+      from { transform: translateX(110vw); }
+      to   { transform: translateX(-100%); }
+    }
+
+    /* EXPANDED */
+    .doc-expanded {
+      max-height: 0; overflow: hidden;
+      transition: max-height 0.4s ease;
+      background: #f9fafb;
+      border-top: 1px solid transparent;
+    }
+    .doc-card.open .doc-expanded {
+      max-height: 400px;
+      border-top-color: #e5e7eb;
+    }
+    .expanded-inner {
+      padding: 20px 16px;
+      display: flex; flex-direction: column; align-items: center; gap: 14px;
+    }
+    .qr-box {
+      background: white; padding: 14px; border-radius: 16px;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+    }
+    .qr-status {
+      display: flex; align-items: center; gap: 7px;
+      background: #ecfdf5; border: 1px solid #6ee7b7;
+      border-radius: 8px; padding: 7px 14px;
+      font-size: 13px; font-weight: 600; color: var(--green);
+    }
+    .pulse {
+      width: 8px; height: 8px; border-radius: 50%; background: var(--green2);
+      animation: blink 1.2s infinite;
+    }
+    @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.2} }
+    .qr-hint { font-size: 12px; color: var(--muted); text-align: center; }
+
+    /* BOTTOM NAV */
+    .bottom-nav {
+      position: fixed; bottom: 0; left: 0; right: 0;
+      background: var(--nav-bg);
+      padding: 10px 0 calc(env(safe-area-inset-bottom, 0px) + 10px);
+      display: flex; justify-content: space-around; z-index: 100;
+    }
+    .nav-item {
+      display: flex; flex-direction: column; align-items: center;
+      gap: 3px; cursor: pointer; padding: 2px 18px;
+    }
+    .nav-icon { font-size: 22px; color: #6b7280; }
+    .nav-label { font-size: 11px; color: #6b7280; }
+    .nav-item.active .nav-icon,
+    .nav-item.active .nav-label { color: var(--green2); }
+    .nav-badge { position: relative; display: inline-block; }
+    .badge { position: absolute; top: -2px; right: -5px;
+      width: 8px; height: 8px; border-radius: 50%;
+      background: #ef4444; border: 1.5px solid var(--nav-bg); }
+  </style>
+</head>
+<body>
+
+<header class="header">
+  <div class="header-left">
+    <div class="header-flag"></div>
+    <div>
+      <div class="header-title">єДокументи</div>
+      <div class="header-sub">Бойчук Петро Петрович</div>
+    </div>
+  </div>
+  <div class="header-avatar">БП</div>
+</header>
+
+<div class="scroll-area">
+  <div class="section-label">Мої документи</div>
+
+  <!-- ── КАРТКА 1 ── -->
+  <div class="doc-card" id="c1" onclick="toggle('c1','q1','ID-картка | Бойчук Петро Петрович | 25.10.2009 | 4011003471')">
+    <div class="doc-header">
+      <span class="doc-type">🪪 ID-картка</span>
+      <span class="doc-arrow">⌄</span>
+    </div>
+    <div class="doc-body">
+      <div class="doc-photo">👤</div>
+      <div class="doc-info">
+        <div class="doc-name">Бойчук<br>Петро<br>Петрович</div>
+        <div class="doc-field">
+          <div class="doc-field-label">Дата народження</div>
+          <div class="doc-field-value">25.10.2009</div>
+        </div>
+        <div class="doc-field">
+          <div class="doc-field-label">РНОКПП</div>
+          <div class="doc-field-value">4011003471</div>
+        </div>
+      </div>
+    </div>
+    <div class="ticker"><span class="ticker-inner">Документ діє під час воєнного стану &nbsp;&nbsp;&nbsp;&nbsp; Документ діє під час воєнного стану &nbsp;&nbsp;&nbsp;&nbsp;</span></div>
+    <div class="doc-expanded"><div class="expanded-inner">
+      <div class="qr-box"><canvas id="q1"></canvas></div>
+      <div class="qr-status"><div class="pulse"></div>Дійсний · оновлюється</div>
+      <div class="qr-hint">Відскануйте для перевірки документа</div>
+    </div></div>
+  </div>
+
+  <!-- ── КАРТКА 2 ── -->
+  <div class="doc-card" id="c2" onclick="toggle('c2','q2','Свідоцтво про народження | Бойчук Петро | І-КМ 987654')">
+    <div class="doc-header">
+      <span class="doc-type">📄 Свідоцтво про народження</span>
+      <span class="doc-arrow">⌄</span>
+    </div>
+    <div class="doc-body">
+      <div class="doc-photo">📋</div>
+      <div class="doc-info">
+        <div class="doc-name">Бойчук<br>Петро<br>Петрович</div>
+        <div class="doc-field">
+          <div class="doc-field-label">Дата народження</div>
+          <div class="doc-field-value">25.10.2009</div>
+        </div>
+        <div class="doc-field">
+          <div class="doc-field-label">Серія / номер</div>
+          <div class="doc-field-value">І-КМ №987654</div>
+        </div>
+      </div>
+    </div>
+    <div class="ticker"><span class="ticker-inner">Офіційний цифровий документ &nbsp;&nbsp;&nbsp;&nbsp; Офіційний цифровий документ &nbsp;&nbsp;&nbsp;&nbsp;</span></div>
+    <div class="doc-expanded"><div class="expanded-inner">
+      <div class="qr-box"><canvas id="q2"></canvas></div>
+      <div class="qr-status"><div class="pulse"></div>Дійсний · оновлюється</div>
+      <div class="qr-hint">Відскануйте для перевірки документа</div>
+    </div></div>
+  </div>
+
+  <!-- ── КАРТКА 3 ── -->
+  <div class="doc-card" id="c3" onclick="toggle('c3','q3','Учнівський квиток | Бойчук Петро | ЗОШ №5 | 10-А')">
+    <div class="doc-header">
+      <span class="doc-type">🎓 Учнівський квиток</span>
+      <span class="doc-arrow">⌄</span>
+    </div>
+    <div class="doc-body">
+      <div class="doc-photo">🎒</div>
+      <div class="doc-info">
+        <div class="doc-name">Бойчук<br>Петро<br>Петрович</div>
+        <div class="doc-field">
+          <div class="doc-field-label">Навчальний заклад</div>
+          <div class="doc-field-value">ЗОШ №5</div>
+        </div>
+        <div class="doc-field">
+          <div class="doc-field-label">Клас</div>
+          <div class="doc-field-value">10-А, 2024–2025</div>
+        </div>
+      </div>
+    </div>
+    <div class="ticker"><span class="ticker-inner">Дійсний у 2024–2025 навчальному році &nbsp;&nbsp;&nbsp;&nbsp; Дійсний у 2024–2025 навчальному році &nbsp;&nbsp;&nbsp;&nbsp;</span></div>
+    <div class="doc-expanded"><div class="expanded-inner">
+      <div class="qr-box"><canvas id="q3"></canvas></div>
+      <div class="qr-status"><div class="pulse"></div>Дійсний · оновлюється</div>
+      <div class="qr-hint">Відскануйте для перевірки документа</div>
+    </div></div>
+  </div>
+
+</div>
+
+<!-- Навігація -->
+<nav class="bottom-nav">
+  <div class="nav-item" onclick="setTab(this)">
+    <div class="nav-icon">📰</div>
+    <div class="nav-label">Стрічка</div>
+  </div>
+  <div class="nav-item active" onclick="setTab(this)">
+    <div class="nav-icon">🪪</div>
+    <div class="nav-label">Документи</div>
+  </div>
+  <div class="nav-item" onclick="setTab(this)">
+    <div class="nav-icon">⚡️</div>
+    <div class="nav-label">Сервіси</div>
+  </div>
+  <div class="nav-item" onclick="setTab(this)">
+    <div class="nav-badge">
+      <div class="nav-icon">👤</div>
+      <div class="badge"></div>
+    </div>
+    <div class="nav-label">Меню</div>
+  </div>
+</nav>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script>
+  if ('serviceWorker' in navigator) navigator.serviceWorker.register('/1/sw.js').catch(()=>{});
+
+  const generated = {};
+
+  function toggle(cardId, qrId, text) {
+    const card = document.getElementById(cardId);
+    const wasOpen = card.classList.contains('open');
+    document.querySelectorAll('.doc-card').forEach(c => c.classList.remove('open'));
+    if (!wasOpen) {
+      card.classList.add('open');
+      if (!generated[qrId]) {
+        new QRCode(document.getElementById(qrId), {
+          text: text,
+          width: 200, height: 200,
+          colorDark: '#1a1a1a', colorLight: '#ffffff',
+          correctLevel: QRCode.CorrectLevel.M
+        });
+        generated[qrId] = true;
+      }
+      setTimeout(() => card.scrollIntoView({ behavior: 'smooth', block: 'nearest' }), 300);
+    }
+  }
+
+  function setTab(el) {
+    document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+    el.classList.add('active');
+  }
+</script>
+</body>
+</html>
